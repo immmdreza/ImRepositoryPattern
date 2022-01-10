@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace ImRepositoryPattern
 {
     public class ScopedUnitOfWork<T> : IDisposable,
-        IUnitOfWork<T> where T : DbContext, new()
+        IUnitOfWork<T> where T : DbContext
     {
         public T Context => _dbContext;
 

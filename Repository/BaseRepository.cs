@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 namespace ImRepositoryPattern.Repository
 {
     public class BaseRepository<TContext, TEntity> :
-        IRepository<TContext, TEntity> where TContext : DbContext, new() where TEntity : class
+        IRepository<TContext, TEntity> where TContext : DbContext where TEntity : class
     {
         public BaseRepository(TContext context, IUnitOfWork<TContext> unitOfWork)
         {
@@ -19,9 +19,9 @@ namespace ImRepositoryPattern.Repository
         public DbSet<TEntity> EntitySet => Context.Set<TEntity>();
 
 
-        public async Task<int> SaveAsync()
+        public async Task<int> SaveAsync(CancellationToken cancellationToken = default)
         {
-            return await Context.SaveChangesAsync().ConfigureAwait(false);
+            return await Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
 
         public virtual void Insert(TEntity entity)
@@ -32,7 +32,8 @@ namespace ImRepositoryPattern.Repository
         public virtual async Task<IEnumerable<TEntity>> FindAsync(
                     Expression<Func<TEntity, bool>>? filter = null,
                     Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-                    string includeProperties = "")
+                    string includeProperties = "",
+                    CancellationToken cancellationToken = default)
         {
             IQueryable<TEntity> query = EntitySet;
 
@@ -49,18 +50,19 @@ namespace ImRepositoryPattern.Repository
 
             if (orderBy != null)
             {
-                return await orderBy(query).ToListAsync().ConfigureAwait(false);
+                return await orderBy(query).ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                return await query.ToListAsync().ConfigureAwait(false);
+                return await query.ToListAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
 
         public virtual async Task<TEntity?> FindOneAsync(
                     Expression<Func<TEntity, bool>>? filter = null,
                     Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-                    string includeProperties = "")
+                    string includeProperties = "",
+                    CancellationToken cancellationToken = default)
         {
             IQueryable<TEntity> query = EntitySet;
 
@@ -77,16 +79,17 @@ namespace ImRepositoryPattern.Repository
 
             if (orderBy != null)
             {
-                return await orderBy(query).SingleOrDefaultAsync().ConfigureAwait(false);
+                return await orderBy(query).SingleOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
             else
             {
-                return await query.SingleOrDefaultAsync().ConfigureAwait(false);
+                return await query.SingleOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
             }
         }
 
         public virtual async Task<bool?> ExistsAsync(
-                    Expression<Func<TEntity, bool>>? filter = null)
+                    Expression<Func<TEntity, bool>>? filter = null,
+                    CancellationToken cancellationToken = default)
         {
             IQueryable<TEntity> query = EntitySet;
 
@@ -95,12 +98,12 @@ namespace ImRepositoryPattern.Repository
                 query = query.Where(filter);
             }
 
-            return await query.AnyAsync().ConfigureAwait(false);
+            return await query.AnyAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
-        public virtual async Task<TEntity?> GetByIDAsync(object id)
+        public virtual async Task<TEntity?> GetByIDAsync(object id, CancellationToken cancellationToken = default)
         {
-            return await EntitySet.FindAsync(id).ConfigureAwait(false);
+            return await EntitySet.FindAsync(new object?[] { id }, cancellationToken: cancellationToken).ConfigureAwait(false);
         }
 
         public virtual void Delete(object id)

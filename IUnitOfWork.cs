@@ -7,7 +7,7 @@ namespace ImRepositoryPattern
     /// Represents an unit of work for specified <see cref="DbContext"/> as <typeparamref name="T"/>
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IUnitOfWork<T> : IDisposable where T : DbContext, new()
+    public interface IUnitOfWork<T> : IDisposable where T : DbContext
     {
         /// <summary>
         /// The <see cref="DbContext"/> instance of type <typeparamref name="T"/>.
