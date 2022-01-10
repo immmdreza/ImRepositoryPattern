@@ -12,11 +12,19 @@ namespace ImRepositoryPattern
         private readonly Dictionary<Type, object> _initializedRepositories;
         private readonly T _dbContext;
 
-        public ScopedUnitOfWork(T dbContext)
+        public ScopedUnitOfWork(T dbContext, params Type[]? repositoryTypes)
         {
             _dbContext = dbContext;
             _repositories = new();
             _initializedRepositories = new();
+
+            if (repositoryTypes != null)
+            {
+                foreach (var repositoryType in repositoryTypes)
+                {
+                    AddRepository(repositoryType);
+                }
+            }
         }
 
         public void AddRepository<R, TEntity>()
@@ -24,7 +32,18 @@ namespace ImRepositoryPattern
                 => _repositories.Add(typeof(R));
 
         public void AddRepository(Type repositoryType)
-            => _repositories.Add(repositoryType);
+        {
+            if (repositoryType.GetInterfaces().Any(
+                i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRepository<,>)))
+            {
+                _repositories.Add(repositoryType);
+            }
+            else
+            {
+                throw new InvalidOperationException(
+                    $"{repositoryType} is not an IRepository<,>");
+            }
+        }
 
         public R GetRepository<R>()
         {
