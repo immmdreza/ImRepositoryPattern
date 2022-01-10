@@ -8,8 +8,8 @@ namespace ImRepositoryPattern
     {
         public T Context => _dbContext;
 
-        private readonly Dictionary<string, Type> _repositories;
-        private readonly Dictionary<string, object> _initializedRepositories;
+        private readonly HashSet<Type> _repositories;
+        private readonly Dictionary<Type, object> _initializedRepositories;
         private readonly T _dbContext;
 
         public ScopedUnitOfWork(T dbContext)
@@ -19,42 +19,36 @@ namespace ImRepositoryPattern
             _initializedRepositories = new();
         }
 
-        /// <summary>
-        /// Repository must have a constructor that takes only two params: <see cref="DbContext"/> and <see cref="UnitOfWork"/> 
-        /// </summary>
-        /// <param name="uniqueName">Unique tag for this repository</param>
-        public void AddRepository<R, TContext, TEntity>(string uniqueName)
-            where R : IRepository<TContext, TEntity>
-            where TContext : DbContext, new() where TEntity : class
-                => _repositories.Add(uniqueName, typeof(R));
+        public void AddRepository<R, TEntity>()
+            where R : IRepository<T, TEntity> where TEntity : class
+                => _repositories.Add(typeof(R));
 
-        /// <summary>
-        /// Repository must have a constructor that takes only two params: <see cref="DbContext"/> and <see cref="UnitOfWork"/> 
-        /// </summary>
-        /// <param name="uniqueName">Unique tag for this repository</param>
-        public void AddRepository(string uniqueName, Type repositoryType)
-            => _repositories.Add(uniqueName, repositoryType);
+        public void AddRepository(Type repositoryType)
+            => _repositories.Add(repositoryType);
 
-        public R GetRepository<R>(string uniqueName)
+        public R GetRepository<R>()
         {
-            if (_initializedRepositories.ContainsKey(uniqueName))
+            if (_initializedRepositories.ContainsKey(typeof(R)))
             {
-                return (R)_initializedRepositories[uniqueName];
+                return (R)_initializedRepositories[typeof(R)];
             }
             else
             {
-                var type = _repositories[uniqueName];
+                var type = _repositories.FirstOrDefault(x => x == typeof(R));
+                if (type == null)
+                    throw new InvalidOperationException($"{type} not added!");
+
                 var obj = Activator.CreateInstance(type, new object[] { Context, this });
                 if (obj == null)
-                    throw new InvalidOperationException($"Cant CreateInstance of {uniqueName}");
+                    throw new InvalidOperationException($"Cant CreateInstance of {type}");
 
-                _initializedRepositories.Add(uniqueName, obj);
+                _initializedRepositories.Add(type, obj);
                 return (R)obj;
             }
         }
 
-        public IRepository<T, TEntity> GetBaseRepository<TContext, TEntity>()
-            where TContext : DbContext, new() where TEntity : class
+        public IRepository<T, TEntity> GetBaseRepository<TEntity>()
+            where TEntity : class
                 => new BaseRepository<T, TEntity>(Context, this);
 
         public async Task<int> SaveAsync()
