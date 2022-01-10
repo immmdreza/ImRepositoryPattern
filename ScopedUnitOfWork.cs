@@ -3,17 +3,18 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ImRepositoryPattern
 {
-    public class UnitOfWork<T> : IDisposable,
+    public class ScopedUnitOfWork<T> : IDisposable,
         IUnitOfWork<T> where T : DbContext, new()
     {
-        public T Context { get; }
+        public T Context => _dbContext;
 
         private readonly Dictionary<string, Type> _repositories;
         private readonly Dictionary<string, object> _initializedRepositories;
+        private readonly T _dbContext;
 
-        public UnitOfWork()
+        public ScopedUnitOfWork(T dbContext)
         {
-            Context = new();
+            _dbContext = dbContext;
             _repositories = new();
             _initializedRepositories = new();
         }

@@ -10,7 +10,7 @@ namespace ImRepositoryPattern.Repository
 
         DbSet<TEntity> EntitySet { get; }
 
-        UnitOfWork<TContext> UnitOfWork { get; }
+        IUnitOfWork<TContext> UnitOfWork { get; }
 
 
         void Insert(TEntity entity);
