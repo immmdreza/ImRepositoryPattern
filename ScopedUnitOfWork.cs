@@ -70,7 +70,7 @@ namespace ImRepositoryPattern
             {
                 if (disposing)
                 {
-                    Context.Dispose();
+                    _dbContext.Dispose();
                     _initializedRepositories.Clear();
                     _repositories.Clear();
                 }
