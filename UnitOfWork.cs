@@ -46,9 +46,9 @@ namespace ImRepositoryPattern
             }
         }
 
-        public IRepository<T, TEntity> GetBaseRepository<TEntity>()
-            where TEntity : class
-                => new BaseRepository<T, TEntity>(Context, this);
+        //public IRepository<T, TEntity> GetBaseRepository<TEntity>()
+        //    where TEntity : class
+        //        => new BaseRepository<T, TEntity>(Context, this);
 
         public async Task<int> SaveAsync()
         {

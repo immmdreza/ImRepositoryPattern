@@ -48,8 +48,8 @@ namespace ImRepositoryPattern
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-        public IRepository<T, TEntity> GetBaseRepository<TEntity>()
-            where TEntity : class;
+        //public IRepository<T, TEntity> GetBaseRepository<R, TEntity>()
+        //    where R : IRepository<T, TEntity> where TEntity : class;
 
         /// <summary>
         /// Save changes for <typeparamref name="T"/>

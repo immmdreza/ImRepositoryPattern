@@ -6,15 +6,12 @@ namespace ImRepositoryPattern.Repository
     public class BaseRepository<TContext, TEntity> :
         IRepository<TContext, TEntity> where TContext : DbContext where TEntity : class
     {
-        public BaseRepository(TContext context, IUnitOfWork<TContext> unitOfWork)
+        public BaseRepository(TContext context)
         {
             Context = context;
-            UnitOfWork = unitOfWork;
         }
 
         public TContext Context { get; }
-
-        public IUnitOfWork<TContext> UnitOfWork { get; }
 
         public DbSet<TEntity> EntitySet => Context.Set<TEntity>();
 

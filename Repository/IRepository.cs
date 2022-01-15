@@ -17,11 +17,6 @@ namespace ImRepositoryPattern.Repository
         DbSet<TEntity> EntitySet { get; }
 
         /// <summary>
-        /// It's the operating <see cref="IUnitOfWork{T}"/>.
-        /// </summary>
-        IUnitOfWork<TContext> UnitOfWork { get; }
-
-        /// <summary>
         /// Inserts a <see cref="TEntity"/>.
         /// </summary>
         /// <remarks>You need to call <see cref="SaveAsync"/>.</remarks>
